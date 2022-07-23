@@ -19,5 +19,6 @@ func main() {
 	c := proto.NewGreetServiceClient(conn)
 
 	//doGreet(c)
-	doGreetManyTimes(c)
+	//doGreetManyTimes(c)
+	doClientStreamingGreet(c)
 }

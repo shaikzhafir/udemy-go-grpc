@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type GreetServiceClient interface {
 	Greet(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (*GreetResponse, error)
 	GreetManyTimes(ctx context.Context, in *GreetRequest, opts ...grpc.CallOption) (GreetService_GreetManyTimesClient, error)
+	ClientStreamGreet(ctx context.Context, opts ...grpc.CallOption) (GreetService_ClientStreamGreetClient, error)
 }
 
 type greetServiceClient struct {
@@ -75,12 +76,47 @@ func (x *greetServiceGreetManyTimesClient) Recv() (*GreetResponse, error) {
 	return m, nil
 }
 
+func (c *greetServiceClient) ClientStreamGreet(ctx context.Context, opts ...grpc.CallOption) (GreetService_ClientStreamGreetClient, error) {
+	stream, err := c.cc.NewStream(ctx, &GreetService_ServiceDesc.Streams[1], "/greet.GreetService/ClientStreamGreet", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &greetServiceClientStreamGreetClient{stream}
+	return x, nil
+}
+
+type GreetService_ClientStreamGreetClient interface {
+	Send(*GreetRequest) error
+	CloseAndRecv() (*GreetResponse, error)
+	grpc.ClientStream
+}
+
+type greetServiceClientStreamGreetClient struct {
+	grpc.ClientStream
+}
+
+func (x *greetServiceClientStreamGreetClient) Send(m *GreetRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *greetServiceClientStreamGreetClient) CloseAndRecv() (*GreetResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(GreetResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // GreetServiceServer is the server API for GreetService service.
 // All implementations must embed UnimplementedGreetServiceServer
 // for forward compatibility
 type GreetServiceServer interface {
 	Greet(context.Context, *GreetRequest) (*GreetResponse, error)
 	GreetManyTimes(*GreetRequest, GreetService_GreetManyTimesServer) error
+	ClientStreamGreet(GreetService_ClientStreamGreetServer) error
 	mustEmbedUnimplementedGreetServiceServer()
 }
 
@@ -93,6 +129,9 @@ func (UnimplementedGreetServiceServer) Greet(context.Context, *GreetRequest) (*G
 }
 func (UnimplementedGreetServiceServer) GreetManyTimes(*GreetRequest, GreetService_GreetManyTimesServer) error {
 	return status.Errorf(codes.Unimplemented, "method GreetManyTimes not implemented")
+}
+func (UnimplementedGreetServiceServer) ClientStreamGreet(GreetService_ClientStreamGreetServer) error {
+	return status.Errorf(codes.Unimplemented, "method ClientStreamGreet not implemented")
 }
 func (UnimplementedGreetServiceServer) mustEmbedUnimplementedGreetServiceServer() {}
 
@@ -146,6 +185,32 @@ func (x *greetServiceGreetManyTimesServer) Send(m *GreetResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _GreetService_ClientStreamGreet_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(GreetServiceServer).ClientStreamGreet(&greetServiceClientStreamGreetServer{stream})
+}
+
+type GreetService_ClientStreamGreetServer interface {
+	SendAndClose(*GreetResponse) error
+	Recv() (*GreetRequest, error)
+	grpc.ServerStream
+}
+
+type greetServiceClientStreamGreetServer struct {
+	grpc.ServerStream
+}
+
+func (x *greetServiceClientStreamGreetServer) SendAndClose(m *GreetResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *greetServiceClientStreamGreetServer) Recv() (*GreetRequest, error) {
+	m := new(GreetRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // GreetService_ServiceDesc is the grpc.ServiceDesc for GreetService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,6 +228,11 @@ var GreetService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "GreetManyTimes",
 			Handler:       _GreetService_GreetManyTimes_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "ClientStreamGreet",
+			Handler:       _GreetService_ClientStreamGreet_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "greet.proto",
