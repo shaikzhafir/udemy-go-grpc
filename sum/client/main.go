@@ -16,7 +16,8 @@ func main() {
 	defer conn.Close()
 	// add logic to consume request
 
-	c := proto.NewSumServiceClient(conn)
+	c := proto.NewAverageServiceClient(conn)
 
-	doSum(c)
+	//doSum(c)
+	doAverageClientStreaming(c)
 }

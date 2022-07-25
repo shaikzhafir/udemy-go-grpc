@@ -9,7 +9,8 @@ import (
 )
 
 type Server struct {
-	pb.SumServiceServer
+	//pb.SumServiceServer
+	pb.AverageServiceServer
 }
 
 func main() {
@@ -21,8 +22,8 @@ func main() {
 	log.Printf("listning on %v", utils.GetAddr())
 
 	s := grpc.NewServer()
-	pb.RegisterSumServiceServer(s, &Server{})
-
+	//pb.RegisterSumServiceServer(s, &Server{})
+	pb.RegisterAverageServiceServer(s, &Server{})
 	err = s.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to serve %v", err)

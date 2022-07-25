@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sum;
+
+option go_package = "github.com/shaikzhafir/udemy-go-grpc/sum/proto";
+
+message AverageRequest {
+  int64 streaming_number = 1;
+}
+
+message AverageResponse {
+  double result = 1;
+}
+
+service AverageService {
+  rpc Average (stream AverageRequest) returns (AverageResponse);
+}
