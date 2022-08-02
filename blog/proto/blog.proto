@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package blog;
+
+option go_package = "github.com/shaikzhafir/udemy-go-grpc/blog/proto";
+
+import "google/protobuf/timestamp.proto";
+
+message Empty {
+
+}
+
+message Blog {
+  string id = 1;
+  string author_id = 2;
+  string title = 3;
+  google.protobuf.Timestamp last_updated = 4;
+  Content content = 5;
+}
+
+message Content {
+  string blog_text = 1;
+  string blog_type = 2;
+}
+
+message BlogId {
+  string id = 1;
+}
+
+service BlogService {
+  rpc CreateBlog(Blog) returns (BlogId);
+  rpc ReadBlog(BlogId) returns (Blog);
+  rpc UpdateBlog(Blog) returns (Empty);
+  rpc DeleteBlog(BlogId) returns (Empty);
+  rpc ListBlogs(Empty) returns (stream Blog);
+}

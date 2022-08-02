@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package sum;
+
+option go_package = "github.com/shaikzhafir/udemy-go-grpc/sum/proto";
+
+import "sqrt.proto";
+
+service CalculatorService {
+  rpc Sqrt (SqrtRequest) returns (SqrtResponse);
+}

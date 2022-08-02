@@ -16,8 +16,12 @@ func main() {
 	defer conn.Close()
 	// add logic to consume request
 
-	c := proto.NewAverageServiceClient(conn)
+	//c := proto.NewAverageServiceClient(conn)
+	//c := proto.NewMaxServiceClient(conn)
+	c := proto.NewCalculatorServiceClient(conn)
 
 	//doSum(c)
-	doAverageClientStreaming(c)
+	//doAverageClientStreaming(c)
+	//doMaxClientStream(c)
+	doSqrt(c, 6)
 }

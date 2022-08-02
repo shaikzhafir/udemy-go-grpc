@@ -86,3 +86,52 @@ func doClientStreamingGreet(c pb.GreetServiceClient) {
 	log.Printf("Client stream ended with response: %v", res.Result)
 
 }
+
+func doGreetEveryone(c pb.GreetServiceClient) {
+	log.Println("doGreetEveryone invoked")
+
+	stream, err := c.GreetEveryone(context.Background())
+
+	if err != nil {
+		log.Fatalf("error starting client stream")
+	}
+
+	reqs := []*pb.GreetRequest{
+		{FirstName: "Client"},
+		{FirstName: "Server"},
+		{FirstName: "Both Streaming!"},
+	}
+
+	waitc := make(chan struct{})
+
+	// go func for client streaming messages and sending
+	go func() {
+		for _, req := range reqs {
+			log.Println("sending request %s", req.FirstName)
+			stream.Send(req)
+			time.Sleep(1 * time.Second)
+		}
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			msg, err := stream.Recv()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Fatalf("error in message stream %v", err)
+				break
+			}
+
+			log.Printf("Greet many times %v", msg)
+		}
+		close(waitc)
+	}()
+
+	<-waitc
+
+}

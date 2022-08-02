@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package sum;
+
+option go_package = "github.com/shaikzhafir/udemy-go-grpc/sum/proto";
+
+message MaxRequest {
+  int64 streaming_number = 1;
+}
+
+message MaxResponse {
+  double result = 1;
+}
+
+service MaxService {
+  rpc Max (stream MaxRequest) returns (stream MaxResponse);
+}

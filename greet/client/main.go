@@ -20,5 +20,6 @@ func main() {
 
 	//doGreet(c)
 	//doGreetManyTimes(c)
-	doClientStreamingGreet(c)
+	//doClientStreamingGreet(c)
+	doGreetEveryone(c)
 }

@@ -10,7 +10,9 @@ import (
 
 type Server struct {
 	//pb.SumServiceServer
-	pb.AverageServiceServer
+	//pb.AverageServiceServer
+	//pb.MaxServiceServer
+	pb.CalculatorServiceServer
 }
 
 func main() {
@@ -23,7 +25,9 @@ func main() {
 
 	s := grpc.NewServer()
 	//pb.RegisterSumServiceServer(s, &Server{})
-	pb.RegisterAverageServiceServer(s, &Server{})
+	//pb.RegisterMaxServiceServer(s, &Server{})
+	pb.RegisterCalculatorServiceServer(s, &Server{})
+
 	err = s.Serve(lis)
 	if err != nil {
 		log.Fatalf("failed to serve %v", err)

@@ -55,3 +55,29 @@ func (s *Server) ClientStreamGreet(stream proto.GreetService_ClientStreamGreetSe
 	}
 
 }
+
+func (s *Server) GreetEveryone(stream proto.GreetService_GreetEveryoneServer) error {
+	log.Println("greet everyone invoked")
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			log.Fatalf("Error reading client stream")
+		}
+
+		res := "Hello " + req.FirstName + "!"
+		err = stream.Send(&proto.GreetResponse{
+			Result: res,
+		})
+
+		if err != nil {
+			log.Fatalf("error sending data to client %v\n", err)
+		}
+
+	}
+}
